@@ -1,7 +1,10 @@
 .venv
 .env
 logs
-training
-model.h5
+
+*.h5
+*.hdf5
 
 __pycache__
+
+*.log

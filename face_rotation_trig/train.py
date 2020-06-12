@@ -15,7 +15,7 @@ from load_dataset import TrainingData, img_rows, img_cols
 
 import argparse
 
-sess_id = str(datetime.now())
+sess_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 np.random.seed(0)
 
@@ -94,8 +94,8 @@ def main():
     train_path = Path(opts.train)
     test_path = Path(opts.test)
 
-    gen = TrainingData(train_path, batch_size=256).generator()
-    vgen = TrainingData(test_path, batch_size=256).generator()
+    gen = TrainingData(train_path, batch_size=128).generator()
+    vgen = TrainingData(test_path, batch_size=128).generator()
 
     sample_x, sample_y = gen.__next__()
 
@@ -104,10 +104,10 @@ def main():
 
     model.fit(
         gen,
-        steps_per_epoch=20,
+        steps_per_epoch=128,
         epochs=100,
         validation_data=vgen,
-        validation_steps=1,
+        validation_steps=16,
         shuffle=True,
         callbacks=[checkpoint, tensorboard],
     )

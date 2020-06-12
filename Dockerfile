@@ -1,10 +1,16 @@
-FROM rocm/tensorflow:rocm3.3-tf2.1-dev
+FROM rocm/tensorflow:rocm3.5-tf2.2-dev
 
 LABEL maintainer="Shogo Takata <peshogo@gmail.com>"
 
-COPY docker/Pipfile /tmp/Pipfile
+RUN pip3 install --upgrade pip && pip3 install poetry
+RUN poetry config virtualenvs.create false
 
-RUN pip3 install --upgrade pip && pip3 install pipenv
+COPY pyproject.toml /tmp/pyproject.toml
+COPY poetry.lock /tmp/poetry.lock
 
-RUN cd /tmp && LC_ALL=C.UTF-8 LANG=C pipenv lock -r > requirements.txt && pip3 install requirements.txt
+RUN cd /tmp &&\
+    poetry add tensorflow-rocm &&\
+    poetry remove tensorflow &&\
+    poetry update
 
+WORKDIR /root

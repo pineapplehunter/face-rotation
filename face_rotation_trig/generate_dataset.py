@@ -6,16 +6,30 @@ import logging
 import sys
 import random
 import shutil
+import numpy as np
 
 # input image dimensions
 img_rows, img_cols = 32, 32
 
+def pil2cv(image):
+    ''' PIL型 -> OpenCV型 '''
+    new_image = np.array(image, dtype=np.uint8)
+    if new_image.ndim == 2:  # モノクロ
+        pass
+    elif new_image.shape[2] == 3:  # カラー
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR)
+    elif new_image.shape[2] == 4:  # 透過
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_RGBA2BGRA)
+    return new_image
 
-def trim_faces_opencv(file_path: Path, casc_path: str) -> [Image]:
+def trim_faces_opencv(file_path: Path, casc_path: str, min_size:int) -> [Image]:
     logging.debug("start process on %s", file_path)
     faceCascade = cv2.CascadeClassifier(casc_path)
 
-    image = cv2.imread(str(file_path))
+    image = Image.open(file_path)
+    image.thumbnail((500,500))
+    image = pil2cv(image)
+    # image = cv2.resize(image, (500,500), interpolation = cv2.INTER_LINER)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image
@@ -23,7 +37,7 @@ def trim_faces_opencv(file_path: Path, casc_path: str) -> [Image]:
         gray,
         scaleFactor=1.1,
         minNeighbors=5,
-        minSize=(30, 30)
+        minSize=(min_size, min_size)
         # flags = cv2.CV_HAAR_SCALE_IMAGE
     )
 
@@ -31,6 +45,7 @@ def trim_faces_opencv(file_path: Path, casc_path: str) -> [Image]:
     for (x, y, w, h) in faces:
         # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
         im = Image.open(file_path)
+        im.thumbnail((500,500))
         im = im.convert("L")
         # im.thumbnail((500, 500))
 
@@ -99,6 +114,7 @@ def main():
         help="the ratio of train test split",
         default=0.1,
     )
+    parser.add_argument("--min-size", "-s", type=int, help="minimum size of face", default=30)
 
     opts = parser.parse_args()
 
@@ -143,7 +159,7 @@ def main():
         if not picture_file.is_file():
             continue
         if opts.method == "opencv":
-            faces = trim_faces_opencv(picture_file, casc_path=opts.cascade_path)
+            faces = trim_faces_opencv(picture_file, casc_path=opts.cascade_path, min_size=opts.min_size)
         elif opts.method == "ssd_keras":
             faces = trim_faces_ssd_keras(picture_file)
 
