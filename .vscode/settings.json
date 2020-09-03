@@ -1,4 +1,8 @@
 {
     "python.formatting.provider": "black",
+<<<<<<< refs/remotes/origin/main
     "python.pythonPath": "/home/shogo/Desktop/face-rotation/.venv/bin/python3"
+=======
+    "python.pythonPath": ".venv/bin/python3"
+>>>>>>> local
 }
