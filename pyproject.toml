@@ -6,7 +6,7 @@ authors = ["Shogo Takata <pineapplehunter.daniel@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.8"
 tensorflow = "^2.2.0"
 pillow = "^7.1.2"
 opencv-python = "^4.2.0"
